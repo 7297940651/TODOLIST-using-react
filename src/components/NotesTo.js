@@ -16,13 +16,31 @@ const NotesTo = () => {
 
     const [inputdata,setinputdata]=useState("")
     const [items,setitems]=useState(getLocal())
+    const [toggle,settoggle]=useState(true)
+    const [edit,setedit]=useState(null)
 
     const addItem=()=>{
         if(!inputdata){
             alert("add item");
+        }else if(inputdata && !toggle){
+
+            setitems(
+                items.map((ele)=>{
+                    if(ele.id===setedit){
+                        return {...ele,name:inputdata}
+                    }
+                    return ele
+                })
+            )
+            setedit(null)
+            settoggle(true)
+            setinputdata('')
+
         }
         else{
-            setitems([...items,[inputdata]])
+            const allUpdated={id:new Date().getTime().toString(),name:inputdata}
+            setitems([...items,allUpdated])
+            console.log(allUpdated)
           setinputdata('')
             
         }
@@ -30,16 +48,30 @@ const NotesTo = () => {
 
     }
 
-    const deleteItem=(id)=>{
+    const deleteItem=(index)=>{
 
-       const updateItems= items.filter((ele,ind)=>{
+       const updateItems= items.filter((ele)=>{
             return(
-                ind!==id
+                index!==ele.id
             )
         })
         setitems(updateItems)
 
     }
+
+    const editItem=(id)=>{
+
+        let editItem= items.find((ele)=>{
+            return ele.id===id
+        })
+        settoggle(false)
+        console.log(editItem)
+        setinputdata(editItem.name)
+
+        setedit(id)
+
+    }
+
     const removeAll=()=>{
         setitems([])
     }
@@ -67,24 +99,26 @@ const NotesTo = () => {
                         setinputdata(e.target.value)
                     }}
                 />
-                <i className="fa fa-plus add-btn" title="Add Item" onClick={addItem}></i>
-
+                {
+                    
+                toggle?<i className="fa fa-plus add-btn" title="Add Item" onClick={addItem}></i>:<i className="far fa-edit add-btn" title="updated Item" onClick={addItem}></i>
+                }
                 </div>
 
                 <div className="showItems">
                 {
-                    items.map((ele,ind)=>{
+                    items.map((ele)=>{
                         return(
-                            <div className="eachItem" key={ind}>
-
-                    
-
-                    <h3>{ele}</h3>
-                    <i className="far fa-trash-alt add-btn" title="Delete Item" onClick={()=>{
-                        deleteItem(ind)
-                    }}></i>
-
-
+                            <div className="eachItem" key={ele.id}>
+                             <h3>{ele.name}</h3>
+                             <div className="todo-btn">
+                              <i className="far fa-edit add-btn" title="Edit Item" onClick={()=>{
+                        editItem(ele.id)
+                         }}></i>
+                         <i className="far fa-trash-alt add-btn" title="Delete Item" onClick={()=>{
+                        deleteItem(ele.id)
+                        }}></i>
+                        </div>
                     </div>
 
                         )
